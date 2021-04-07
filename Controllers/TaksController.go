@@ -9,28 +9,12 @@ import (
 )
 
 var taks []Models.Taks
-var taksKategori []Models.KategoriTaks
 
 // GetTaks untuk ambil semua taks
 func GetTaks(c *gin.Context) {
-	type ResultJoin struct {
-		ID         int       `json:"id"`
-		Nama       string    `json:"nama"`
-		DueDate    time.Time `json:"due_date"`
-		Deskripsi  string    `json:"deskripsi"`
-		IDKategori int       `json:"id_kategori"`
-		Kategori   string    `json:"kategori"`
-	}
-
 	idKategori := c.Query("idkategori")
 	if len(idKategori) != 0 {
-
-		result := Config.DB.Table("taks").
-			Select("taks.*, kategori_taks.nama as kategori").
-			Joins("join kategori_taks on taks.id_kategori = kategori_taks.id").
-			Where("taks.id_kategori = ?", idKategori).
-			//Scan(&ResultJoin{})
-			Find(&taks)
+		result := Config.DB.Preload("KategoriTaks").Where("id_kategori = ?", idKategori).Find(&taks)
 
 		if result.RowsAffected == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "id kategori not found"})
@@ -46,7 +30,7 @@ func GetTaks(c *gin.Context) {
 		return
 	}
 
-	result := Config.DB.Find(&taks)
+	result := Config.DB.Preload("KategoriTaks").Find(&taks)
 	res := gin.H{
 		"data":  result.Value,
 		"error": result.Error,
@@ -54,6 +38,7 @@ func GetTaks(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
 func FindTaks(c *gin.Context) {
 	result := Config.DB.Find(&taks, "id = ?", c.Param("id"))
 	if result.RowsAffected != 0 {
@@ -131,7 +116,7 @@ func UpadateTaks(c *gin.Context) {
 func DeleteTaks(c *gin.Context) {
 	result := Config.DB.First(&taks, "id = ?", c.Param("id"))
 	if result.RowsAffected == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error":"Request id not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Request id not found"})
 		return
 	}
 

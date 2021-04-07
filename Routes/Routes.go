@@ -20,6 +20,15 @@ func SetupRoutes() *gin.Engine {
 		grup1.POST("/taks", Controllers.CreateTaks)
 		grup1.PATCH("/taks/:id", Controllers.UpadateTaks)
 		grup1.DELETE("/taks/:id", Controllers.DeleteTaks)
+
+		grup1.GET("/kategori", Controllers.GetKategori)
+		grup1.POST("/kategori", Controllers.CreateKategori)
+		grup1.PATCH("/kategori/:id", Controllers.UpdateKategori)
+		grup1.DELETE("/kategori/:id", Controllers.DeleteKategori)
+
+		grup1.POST("/assign-new-taks", Controllers.AssignTaks)
+		grup1.GET("/assigned-taks", Controllers.ReadAssignedTaks)
+		grup1.DELETE("/assigned-taks/:idTaks/:idKaryawan", Controllers.DeleteAssignedTaks)
 	}
 	return r
 }
